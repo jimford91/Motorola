@@ -53,7 +53,7 @@ public class FileController {
 
 	@PostMapping("upload")
 	public void uploadFile(MultipartFile file) throws IOException {
-		validateFilename(file.getName());
+		validateFilename(file.getOriginalFilename());
 		logger.info("Uploading file");
 		fileService.saveFile(file);
 	}
@@ -64,9 +64,14 @@ public class FileController {
 		fileService.deleteFile(filename);
 	}
 
+	/**
+	 * Checks that the filename contains only alphanumeric characters and if it does not then throws an
+	 * {@code IllegalArgumentException}
+	 *
+	 * @param filename the name of the file to validate
+	 */
 	private void validateFilename(String filename) {
 		String newFilename = filename.replaceAll(FILENAME_REGEX, "");
-
 		if (!filename.equals(newFilename)) {
 			throw new IllegalArgumentException(String.format("Filename of %s was not a valid name", filename));
 		}
