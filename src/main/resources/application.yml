@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: "motorola"
+
+management:
+  datadog:
+    metrics:
+      export:
+        enabled: false
+
+storage:
+  file:
+    base-location: "upload"
