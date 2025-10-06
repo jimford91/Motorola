@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -131,6 +132,7 @@ public class FileControllerE2ETest {
 
 		MvcResult response = mockMvc.perform(get("/files/download/fileA.txt"))
 				.andExpect(status().isOk())
+				.andExpect(header().string("Content-Disposition", "form-data; name=\"attachment\"; filename=\"fileA.txt\""))
 				.andReturn();
 
 		assertEquals("Just a random small text file", response.getResponse().getContentAsString());
@@ -143,6 +145,7 @@ public class FileControllerE2ETest {
 
 		MvcResult response = mockMvc.perform(get("/files/download/imageUploaded.jpg"))
 				.andExpect(status().isOk())
+				.andExpect(header().string("Content-Disposition", "form-data; name=\"attachment\"; filename=\"imageUploaded.jpg\""))
 				.andReturn();
 
 		assertEquals(fileBytes.length, response.getResponse().getContentLength());
@@ -158,6 +161,12 @@ public class FileControllerE2ETest {
 	public void testDownloadFileInvalidName() throws Exception {
 		mockMvc.perform(get("/files/download/imageNotThere$$$.jpg"))
 				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void testDownloadFileNoName() throws Exception {
+		mockMvc.perform(get("/files/download/"))
+				.andExpect(status().isInternalServerError());
 	}
 
 }

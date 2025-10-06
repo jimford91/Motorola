@@ -6,6 +6,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,9 +41,13 @@ public class FileController {
 
 		Resource resource = fileService.getFile(filename);
 
-		LOGGER.debug("Successfully downloaded file [{}}]", filename);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentLength(resource.contentLength());
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		headers.setContentDispositionFormData("attachment", filename);
 
 		return ResponseEntity.ok()
+				.headers(headers)
 				.contentLength(resource.contentLength())
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
 				.body(resource);
@@ -62,7 +67,6 @@ public class FileController {
 		LOGGER.debug("Successfully uploaded file [{}}]", file.getOriginalFilename());
 	}
 
-	//TODO: TEst with no name provided
 	@DeleteMapping("delete/{filename}")
 	public void removeFile(@PathVariable String filename) throws IOException {
 		LOGGER.debug("Deleting file [{}}]", filename);
