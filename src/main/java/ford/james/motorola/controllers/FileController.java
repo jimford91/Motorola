@@ -1,10 +1,10 @@
 package ford.james.motorola.controllers;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Set;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ import ford.james.motorola.services.FileService;
 @RequestMapping("files")
 public class FileController {
 
-	private static final Logger logger = Logger.getLogger(FileController.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class.getName());
 	private static final String FILENAME_REGEX = "[^a-zA-Z0-9._]+";
 
 	private final FileService fileService;
@@ -31,13 +31,16 @@ public class FileController {
 		this.fileService = fileService;
 	}
 
-	//TODO: ControllerAdvice
 	@GetMapping("download/{filename}")
 	public ResponseEntity<Resource> getFile(@PathVariable String filename) throws IOException {
+
+		LOGGER.debug("Downloading file [{}}]", filename);
 
 		validateFilename(filename);
 
 		Resource resource = fileService.getFile(filename);
+
+		LOGGER.debug("Successfully downloaded file [{}}]", filename);
 
 		return ResponseEntity.ok()
 				.contentLength(resource.contentLength())
@@ -47,21 +50,25 @@ public class FileController {
 
 	@GetMapping("list")
 	public Set<String> listFiles() throws IOException {
-		logger.info("Listing available files");
+		LOGGER.debug("Listing available files");
 		return fileService.listFilenames();
 	}
 
 	@PostMapping("upload")
 	public void uploadFile(MultipartFile file) throws IOException {
+		LOGGER.debug("Uploading file [{}}]", file.getOriginalFilename());
 		validateFilename(file.getOriginalFilename());
-		logger.info("Uploading file");
 		fileService.saveFile(file);
+		LOGGER.debug("Successfully uploaded file [{}}]", file.getOriginalFilename());
 	}
 
+	//TODO: TEst with no name provided
 	@DeleteMapping("delete/{filename}")
 	public void removeFile(@PathVariable String filename) throws IOException {
+		LOGGER.debug("Deleting file [{}}]", filename);
 		validateFilename(filename);
 		fileService.deleteFile(filename);
+		LOGGER.debug("Successfully deleted file [{}}]", filename);
 	}
 
 	/**

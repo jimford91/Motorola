@@ -1,14 +1,10 @@
 package ford.james.motorola.repositories;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import ford.james.motorola.FileStorageProperties;
 
 @Repository
-//@Profile("DEV")
 public class FileLocalRepository implements FileRepository {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FileLocalRepository.class.getName());
@@ -63,6 +58,7 @@ public class FileLocalRepository implements FileRepository {
 	public void deleteFileFromStorage(String filename) throws IOException {
 
 		Path filePath = buildFilePath(filename);
+		validateFileExists(filePath);
 
 		try {
 			Files.delete(filePath);
@@ -72,8 +68,22 @@ public class FileLocalRepository implements FileRepository {
 		}
 	}
 
+	@Override
 	public ByteArrayResource getFileFromStorage(String filename) throws IOException {
-		return new ByteArrayResource(Files.readAllBytes(buildFilePath(filename)));
+
+		Path path = buildFilePath(filename);
+
+		validateFileExists(path);
+		return new ByteArrayResource(Files.readAllBytes(path));
+	}
+
+	private void validateFileExists(Path path) throws NoSuchFileException {
+
+		if (Files.exists(path)) {
+			return;
+		}
+		LOGGER.error("File not found at [{}]", path);
+		throw new NoSuchFileException("The file with name [" + path.getFileName() + "] does not exist");
 	}
 
 	private Path buildFilePath(MultipartFile file) {

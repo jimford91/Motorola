@@ -1,6 +1,8 @@
 package ford.james.motorola.controllers;
 
 
+import java.nio.file.NoSuchFileException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,11 @@ public class ControllerExceptionHandler {
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<String> handleIllegalArgumentException(WebRequest webRequest, IllegalArgumentException e) {
 		return generateResponseAndLog(HttpStatus.BAD_REQUEST, e, webRequest);
+	}
+
+	@ExceptionHandler(NoSuchFileException.class)
+	public ResponseEntity<String> handleNoSuchFileException(WebRequest webRequest, NoSuchFileException e) {
+		return generateResponseAndLog(HttpStatus.NOT_FOUND, e, webRequest);
 	}
 
 	@ExceptionHandler(Throwable.class)
