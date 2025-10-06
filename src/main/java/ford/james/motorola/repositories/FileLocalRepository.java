@@ -78,7 +78,6 @@ public class FileLocalRepository implements FileRepository {
 	}
 
 	private void validateFileExists(Path path) throws NoSuchFileException {
-
 		if (Files.exists(path)) {
 			return;
 		}
