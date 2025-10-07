@@ -11,3 +11,4 @@ management:
 storage:
   file:
     base-location: "src/test/resources/uploadFiles"
+    request-timeout: 5

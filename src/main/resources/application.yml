@@ -11,3 +11,4 @@ management:
 storage:
   file:
     base-location: "upload"
+    request-timeout: 15

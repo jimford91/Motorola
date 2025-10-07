@@ -34,14 +34,14 @@ public class FileControllerE2ETest {
 	private MockMvc mockMvc;
 
 	@Test
-	public void testListFilesSuccess() throws Exception {
+	void testListFilesSuccess() throws Exception {
 		mockMvc.perform(get("/files/list"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.length()").value(2));
 	}
 
 	@Test
-	public void testDeleteFileSuccess() throws Exception {
+	void testDeleteFileSuccess() throws Exception {
 
 		Path filePath = Path.of("src/test/resources/uploadFiles/fileDelete.txt");
 
@@ -55,7 +55,7 @@ public class FileControllerE2ETest {
 	}
 
 	@Test
-	public void testDeleteFileInvalidName() throws Exception {
+	void testDeleteFileInvalidName() throws Exception {
 
 		Path filePath = Path.of("src/test/resources/uploadFiles/fileDelete.txt");
 
@@ -71,7 +71,7 @@ public class FileControllerE2ETest {
 	}
 
 	@Test
-	public void testDeleteFileDoesNotExist() throws Exception {
+	void testDeleteFileDoesNotExist() throws Exception {
 
 		Path filePath = Path.of("src/test/resources/uploadFiles/fileDelete.txt");
 
@@ -82,7 +82,7 @@ public class FileControllerE2ETest {
 	}
 
 	@Test
-	public void testUploadFileSuccessSmallTextFile() throws Exception {
+	void testUploadFileSuccessSmallTextFile() throws Exception {
 
 		MockMultipartFile multipartFile = new MockMultipartFile("file", "simpleFile.txt", MediaType.TEXT_PLAIN.getType(),
 				"Just a file".getBytes());
@@ -97,7 +97,7 @@ public class FileControllerE2ETest {
 	}
 
 	@Test
-	public void testUploadFileSuccessImageFile() throws Exception {
+	void testUploadFileSuccessImageFile() throws Exception {
 
 		byte[] fileBytes = Files.readAllBytes(Path.of("src/test/resources/testFiles/testImage.jpg"));
 
@@ -114,7 +114,7 @@ public class FileControllerE2ETest {
 	}
 
 	@Test
-	public void testUploadFileInvalidFileName() throws Exception {
+	void testUploadFileInvalidFileName() throws Exception {
 
 		MockMultipartFile multipartFile = new MockMultipartFile("file", "simple&&&File.txt", MediaType.TEXT_PLAIN.getType(),
 				"Just a file".getBytes());
@@ -128,7 +128,18 @@ public class FileControllerE2ETest {
 	}
 
 	@Test
-	public void testDownloadFileSuccessTextFile() throws Exception {
+	void testUploadFileAlreadyExists() throws Exception {
+
+		MockMultipartFile multipartFile = new MockMultipartFile("file", "fileA.txt", MediaType.TEXT_PLAIN.getType(),
+				"Just a file".getBytes());
+
+		mockMvc.perform(multipart("/files/upload")
+						.file(multipartFile))
+				.andExpect(status().isConflict());
+	}
+
+	@Test
+	void testDownloadFileSuccessTextFile() throws Exception {
 
 		MvcResult response = mockMvc.perform(get("/files/download/fileA.txt"))
 				.andExpect(status().isOk())
@@ -139,7 +150,7 @@ public class FileControllerE2ETest {
 	}
 
 	@Test
-	public void testDownloadFileSuccessImageFile() throws Exception {
+	void testDownloadFileSuccessImageFile() throws Exception {
 
 		byte[] fileBytes = Files.readAllBytes(Path.of("src/test/resources/uploadFiles/imageUploaded.jpg"));
 
@@ -152,19 +163,19 @@ public class FileControllerE2ETest {
 	}
 
 	@Test
-	public void testDownloadFileNoFileExists() throws Exception {
+	void testDownloadFileNoFileExists() throws Exception {
 		mockMvc.perform(get("/files/download/imageNotThere.jpg"))
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
-	public void testDownloadFileInvalidName() throws Exception {
+	void testDownloadFileInvalidName() throws Exception {
 		mockMvc.perform(get("/files/download/imageNotThere$$$.jpg"))
 				.andExpect(status().isBadRequest());
 	}
 
 	@Test
-	public void testDownloadFileNoName() throws Exception {
+	void testDownloadFileNoName() throws Exception {
 		mockMvc.perform(get("/files/download/"))
 				.andExpect(status().isInternalServerError());
 	}

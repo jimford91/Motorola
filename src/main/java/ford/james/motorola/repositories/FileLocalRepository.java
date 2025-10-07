@@ -43,11 +43,11 @@ public class FileLocalRepository implements FileRepository {
 	}
 
 	@Override
-	public void saveFileToStorage(MultipartFile file) throws IOException {
+	public boolean saveFileToStorage(MultipartFile file) throws IOException {
 		Path path = buildFilePath(file);
-
 		try {
 			file.transferTo(path);
+			return true;
 		} catch (IOException ex) {
 			LOGGER.error("Unable to save file in location [{}]", path, ex);
 			throw ex;
@@ -55,13 +55,13 @@ public class FileLocalRepository implements FileRepository {
 	}
 
 	@Override
-	public void deleteFileFromStorage(String filename) throws IOException {
+	public boolean deleteFileFromStorage(String filename) throws IOException {
 
 		Path filePath = buildFilePath(filename);
-		validateFileExists(filePath);
 
 		try {
 			Files.delete(filePath);
+			return true;
 		} catch (IOException e) {
 			LOGGER.error("Unable to delete file in location [{}]", filePath, e);
 			throw e;
@@ -73,16 +73,12 @@ public class FileLocalRepository implements FileRepository {
 
 		Path path = buildFilePath(filename);
 
-		validateFileExists(path);
 		return new ByteArrayResource(Files.readAllBytes(path));
 	}
 
-	private void validateFileExists(Path path) throws NoSuchFileException {
-		if (Files.exists(path)) {
-			return;
-		}
-		LOGGER.error("File not found at [{}]", path);
-		throw new NoSuchFileException("The file with name [" + path.getFileName() + "] does not exist");
+	@Override
+	public boolean fileExists(String filename) {
+		return Files.exists(buildFilePath(filename));
 	}
 
 	private Path buildFilePath(MultipartFile file) {

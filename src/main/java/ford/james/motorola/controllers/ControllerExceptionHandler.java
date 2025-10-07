@@ -1,6 +1,7 @@
 package ford.james.motorola.controllers;
 
 
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
 
 import org.slf4j.Logger;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+
+import ford.james.motorola.exceptions.LockTimeoutException;
 
 /**
  * Exception handler for all Controllers to return correct responses and status codes to the caller.
@@ -28,6 +31,16 @@ public class ControllerExceptionHandler {
 	@ExceptionHandler(NoSuchFileException.class)
 	public ResponseEntity<String> handleNoSuchFileException(WebRequest webRequest, NoSuchFileException e) {
 		return generateResponseAndLog(HttpStatus.NOT_FOUND, e, webRequest);
+	}
+
+	@ExceptionHandler(LockTimeoutException.class)
+	public ResponseEntity<String> handleLockTimeoutException(WebRequest webRequest, LockTimeoutException e) {
+		return generateResponseAndLog(HttpStatus.REQUEST_TIMEOUT, e, webRequest);
+	}
+
+	@ExceptionHandler(FileAlreadyExistsException.class)
+	public ResponseEntity<String> handleFileAlreadyExistsException(WebRequest webRequest, FileAlreadyExistsException e) {
+		return generateResponseAndLog(HttpStatus.CONFLICT, e, webRequest);
 	}
 
 	@ExceptionHandler(Throwable.class)

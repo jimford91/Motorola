@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class FileStorageProperties {
 
 	private String baseLocation;
+	private long requestTimeout;
 
 	public String getBaseLocation() {
 		return baseLocation;
@@ -17,4 +18,11 @@ public class FileStorageProperties {
 		this.baseLocation = baseLocation;
 	}
 
+	public long getRequestTimeout() {
+		return requestTimeout;
+	}
+
+	public void setRequestTimeout(long requestTimeout) {
+		this.requestTimeout = requestTimeout;
+	}
 }

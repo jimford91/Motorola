@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import ford.james.motorola.exceptions.LockTimeoutException;
 import ford.james.motorola.services.FileService;
 
 public class FileControllerTest {
@@ -58,19 +59,19 @@ public class FileControllerTest {
 	}
 
 	@Test
-	void testRemoveFileSuccess() throws IOException {
+	void testRemoveFileSuccess() throws Exception {
 		fileController.removeFile("AcceptedName1.csv");
 		verify(fileService).deleteFile("AcceptedName1.csv");
 	}
 
 	@Test
-	void testRemoveFileInvalidName() throws IOException {
+	void testRemoveFileInvalidName() throws Exception {
 		assertThrows(IllegalArgumentException.class, () -> fileController.removeFile("InvalidN&M£.csv"));
 		verify(fileService, never()).deleteFile(any());
 	}
 
 	@Test
-	void testUploadFileSuccess() throws IOException {
+	void testUploadFileSuccess() throws Exception {
 
 		MultipartFile file = new MockMultipartFile("val1dFil3nam3", "val1dFil3nam3", null, "file".getBytes());
 
@@ -79,7 +80,7 @@ public class FileControllerTest {
 	}
 
 	@Test
-	void testUploadFileInvalidName() throws IOException {
+	void testUploadFileInvalidName() throws Exception {
 
 		MultipartFile file = new MockMultipartFile("inval1dFil3nam3.t/t", "inval1dFil3nam3.t/t", null, "file".getBytes());
 
@@ -88,7 +89,7 @@ public class FileControllerTest {
 	}
 
 	@Test
-	void testGetFileSuccess() throws IOException {
+	void testGetFileSuccess() throws Exception {
 
 		Resource resource = new ByteArrayResource("file".getBytes());
 		when(fileService.getFile(any())).thenReturn(resource);
@@ -106,7 +107,7 @@ public class FileControllerTest {
 	}
 
 	@Test
-	void testGetFileInvalidName() throws IOException {
+	void testGetFileInvalidName() throws Exception {
 		assertThrows(IllegalArgumentException.class, () -> fileController.getFile("InvalidN&M£.csv"));
 		verify(fileService, never()).getFile(any());
 	}

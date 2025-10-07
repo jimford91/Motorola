@@ -1,6 +1,7 @@
 package ford.james.motorola.repositories;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Set;
 
 import org.springframework.core.io.Resource;
@@ -11,9 +12,11 @@ public interface FileRepository {
 
 	Set<String> listFilenames() throws IOException;
 
-	void saveFileToStorage(MultipartFile file) throws IOException;
+	boolean saveFileToStorage(MultipartFile file) throws IOException;
 
-	void deleteFileFromStorage(String filename) throws IOException;
+	boolean deleteFileFromStorage(String filename) throws IOException;
 
 	Resource getFileFromStorage(String filename) throws IOException;
+
+	boolean fileExists(String filename);
 }

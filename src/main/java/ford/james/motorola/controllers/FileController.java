@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import ford.james.motorola.exceptions.LockTimeoutException;
 import ford.james.motorola.services.FileService;
 
 @RestController
@@ -33,7 +34,8 @@ public class FileController {
 	}
 
 	@GetMapping("download/{filename}")
-	public ResponseEntity<Resource> getFile(@PathVariable String filename) throws IOException {
+	public ResponseEntity<Resource> getFile(@PathVariable String filename)
+			throws Exception {
 
 		LOGGER.debug("Downloading file [{}}]", filename);
 
@@ -60,7 +62,7 @@ public class FileController {
 	}
 
 	@PostMapping("upload")
-	public void uploadFile(MultipartFile file) throws IOException {
+	public void uploadFile(MultipartFile file) throws Exception {
 		LOGGER.debug("Uploading file [{}}]", file.getOriginalFilename());
 		validateFilename(file.getOriginalFilename());
 		fileService.saveFile(file);
@@ -68,7 +70,7 @@ public class FileController {
 	}
 
 	@DeleteMapping("delete/{filename}")
-	public void removeFile(@PathVariable String filename) throws IOException {
+	public void removeFile(@PathVariable String filename) throws Exception {
 		LOGGER.debug("Deleting file [{}}]", filename);
 		validateFilename(filename);
 		fileService.deleteFile(filename);
