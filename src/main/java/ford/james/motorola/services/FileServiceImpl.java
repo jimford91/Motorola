@@ -7,6 +7,7 @@ import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -37,7 +38,7 @@ public class FileServiceImpl implements FileService {
 	public FileServiceImpl(FileRepository fileRepository, FileStorageProperties fileStorageProperties) {
 		this.fileRepository = fileRepository;
 		this.fileStorageProperties = fileStorageProperties;
-		filenameLock = new HashMap<>();
+		filenameLock = new ConcurrentHashMap<>();
 	}
 
 	@Override

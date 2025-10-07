@@ -7,7 +7,24 @@ Alternatively
 
 # Design Choices
 
+I decided to go with a local file system for ease of setting up and implementation while structuring the codebase in a way
+that implementing a different store would be easy and follow the "Open/Closed Principle".
 
+I decided to implement a simple regex for filenames to show that the consideration had been made, but more time would be needed to 
+refine the regex and I felt the time was better spent elsewhere. 
+
+I decided to go with no authentication for the endpoints, as that can be added on and I thought it was best to work on the endpoints
+and assume no authentication was needed. 
+
+For the locking mechanism I decided to use the "Lock" functionality introduced in Java 8 and use a basic map to only lock on filenames.
+This simple locking mechanism assumes that files can be read multiple times but cannot combine the operations of "delete" and "update"
+with other operations themselves or read operations.
+
+I chose Swagger to use as the API documentation generation as it was I am comfortable with.
+
+For the metrics, I have not added a key but the ability is there to plug in a datadog key. 
+I did not have time to look into this part of the exercise and even though I have had usage with datadog integrated with services, 
+I did not do the initial integration.
 
 # Improvements
 
@@ -27,4 +44,10 @@ store the metadata in a database or even something with quicker access like a re
 This would give a larger performance improvement especially then there are lots of files and possibly lots of directories.
 
 The locking mechanism could be extracted into its own service for reuse and more isolated testing, however due to time I decided
-to keep it in the FileServiceImpl (even though this sort of does break the "Singulary of Concerns" principle)
+to keep it in the FileServiceImpl (even though this sort of does break the "Singulary of Concerns" principle).
+
+Testing wise, I have not fully tested everything due to time but the e2e tests demonstrate my knowledge around that area. 
+The unit tests cover the FileController and FileService which covers various validation checks aswell as the locking mechanism. 
+The FileServiceImplTest does not cover all possible scenarios with the lock across all methods, however it does catch the 
+key and edge scenarios across a couple of the methods. Implementing these methods would have just been a "Copy Paste Change"
+job and to save time I decided to skip them.

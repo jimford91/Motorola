@@ -236,6 +236,27 @@ public class FileServiceImplTest {
 	}
 
 	@Test
+	void testGetFileDoesNotBlockOtherGetFile() throws Exception {
+
+		when(fileRepository.fileExists("filename")).thenReturn(true);
+		when(fileRepository.getFileFromStorage("filename")).then(invocation -> {
+			Thread.sleep(2000);
+			return resource;
+		}).thenReturn(resource);
+
+		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
+			executorService.submit(() -> {
+				assertEquals(resource, fileServiceImpl.getFile("filename"));
+				return null;
+			});
+			assertEquals(resource, fileServiceImpl.getFile("filename"));
+
+			verify(fileRepository, times(2)).fileExists("filename");
+			verify(fileRepository, times(2)).getFileFromStorage("filename");
+		}
+	}
+
+	@Test
 	void testDeleteFileLockExpiresWhileGettingSameFile() throws Exception {
 
 		when(fileRepository.fileExists("filename")).thenReturn(true);
