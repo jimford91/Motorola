@@ -2,8 +2,12 @@
 
 Ensure that the "upload" directory has already been created in the root of the project. 
 
-To run the project simply navigate within an IDE such as Intellij and run the MotorolaApplicationTests class. 
-Alternatively
+To run the project simply navigate within an IDE such as Intellij and run the MotorolaApplicationTests class.
+
+To use your own OpenAI account for the documentation generation replace the "spring.ai.openai.api-key" property in appliation.yml
+with your own api key. Currently it is set up to my one for this project.
+
+To view the api in Swagger go to: http://localhost:8080/swagger-ui/index.html while the application is running.
 
 # Design Choices
 
@@ -51,3 +55,6 @@ The unit tests cover the FileController and FileService which covers various val
 The FileServiceImplTest does not cover all possible scenarios with the lock across all methods, however it does catch the 
 key and edge scenarios across a couple of the methods. Implementing these methods would have just been a "Copy Paste Change"
 job and to save time I decided to skip them.
+
+There is very limited Javadoccing. I was focused on getting the solution done but usually I would add more documentation, both
+inline where needed and javadoccing on methods.
