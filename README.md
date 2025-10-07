@@ -5,7 +5,8 @@ Ensure that the "upload" directory has already been created in the root of the p
 To run the project simply navigate within an IDE such as Intellij and run the MotorolaApplicationTests class.
 
 To use your own OpenAI account for the documentation generation replace the "spring.ai.openai.api-key" property in appliation.yml
-with your own api key. Currently it is set up to my one for this project.
+with your own api key. 
+I can provide my secret if needed from OpenAI
 
 To view the api in Swagger go to: http://localhost:8080/swagger-ui/index.html while the application is running.
 
