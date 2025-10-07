@@ -58,3 +58,6 @@ job and to save time I decided to skip them.
 
 There is very limited Javadoccing. I was focused on getting the solution done but usually I would add more documentation, both
 inline where needed and javadoccing on methods.
+
+After doing some reading while trying to fix tests, I came upon the FileLock functionality within the NIO library within Java. 
+Locking at the file level with the access to the file would be better than locking within the java code instead how I implemented it.

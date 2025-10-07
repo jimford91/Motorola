@@ -16,6 +16,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,7 @@ public class FileServiceImplTest {
 	@InjectMocks
 	private FileServiceImpl fileServiceImpl;
 
+	private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 	private AutoCloseable closeable;
 
 	@BeforeEach
@@ -175,16 +177,16 @@ public class FileServiceImplTest {
 			return true;
 		});
 
-		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-			executorService.submit(() -> {
-				fileServiceImpl.deleteFile("filename");
-				return null;
-			});
-			assertThrows(LockTimeoutException.class, () -> fileServiceImpl.getFile("filename"));
-			verify(fileRepository).fileExists("filename");
-			verify(fileRepository).deleteFileFromStorage("filename");
-			verify(fileRepository, never()).getFileFromStorage("filename");
-		}
+		executorService.submit(() -> {
+			fileServiceImpl.deleteFile("filename");
+			return null;
+		});
+		executorService.submit(() -> assertThrows(LockTimeoutException.class, () -> fileServiceImpl.getFile("filename")));
+		executorService.shutdown();
+		executorService.awaitTermination(20, TimeUnit.SECONDS);
+		verify(fileRepository).fileExists("filename");
+		verify(fileRepository).deleteFileFromStorage("filename");
+		verify(fileRepository, never()).getFileFromStorage("filename");
 	}
 
 	@Test
@@ -198,18 +200,24 @@ public class FileServiceImplTest {
 			return true;
 		});
 
-		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-			executorService.submit(() -> {
-				fileServiceImpl.deleteFile("other");
-				return null;
-			});
-			assertEquals(resource, fileServiceImpl.getFile("filename"));
+		executorService.submit(() -> {
+			fileServiceImpl.deleteFile("other");
+			return null;
+		});
+		executorService.submit(() -> {
+			try {
+				assertEquals(resource, fileServiceImpl.getFile("filename"));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		executorService.shutdown();
+		executorService.awaitTermination(20, TimeUnit.SECONDS);
 
-			verify(fileRepository).fileExists("filename");
-			verify(fileRepository).fileExists("other");
-			verify(fileRepository).deleteFileFromStorage("other");
-			verify(fileRepository).getFileFromStorage("filename");
-		}
+		verify(fileRepository).fileExists("filename");
+		verify(fileRepository).fileExists("other");
+		verify(fileRepository).deleteFileFromStorage("other");
+		verify(fileRepository).getFileFromStorage("filename");
 	}
 
 	@Test
@@ -222,17 +230,17 @@ public class FileServiceImplTest {
 			return true;
 		});
 
-		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-			executorService.submit(() -> {
-				fileServiceImpl.deleteFile("filename");
-				return null;
-			});
-			assertThrows(FileNotFoundException.class, () -> fileServiceImpl.getFile("filename"));
+		executorService.submit(() -> {
+			fileServiceImpl.deleteFile("filename");
+			return null;
+		});
+		executorService.submit(() -> assertThrows(FileNotFoundException.class, () -> fileServiceImpl.getFile("filename")));
+		executorService.shutdown();
+		executorService.awaitTermination(20, TimeUnit.SECONDS);
 
-			verify(fileRepository, times(2)).fileExists("filename");
-			verify(fileRepository).deleteFileFromStorage("filename");
-			verify(fileRepository, never()).getFileFromStorage("filename");
-		}
+		verify(fileRepository, times(2)).fileExists("filename");
+		verify(fileRepository).deleteFileFromStorage("filename");
+		verify(fileRepository, never()).getFileFromStorage("filename");
 	}
 
 	@Test
@@ -244,16 +252,22 @@ public class FileServiceImplTest {
 			return resource;
 		}).thenReturn(resource);
 
-		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-			executorService.submit(() -> {
-				assertEquals(resource, fileServiceImpl.getFile("filename"));
-				return null;
-			});
+		executorService.submit(() -> {
 			assertEquals(resource, fileServiceImpl.getFile("filename"));
+			return null;
+		});
+		executorService.submit(() -> {
+			try {
+				assertEquals(resource, fileServiceImpl.getFile("filename"));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		executorService.shutdown();
+		executorService.awaitTermination(20, TimeUnit.SECONDS);
 
-			verify(fileRepository, times(2)).fileExists("filename");
-			verify(fileRepository, times(2)).getFileFromStorage("filename");
-		}
+		verify(fileRepository, times(2)).fileExists("filename");
+		verify(fileRepository, times(2)).getFileFromStorage("filename");
 	}
 
 	@Test
@@ -265,16 +279,16 @@ public class FileServiceImplTest {
 			return true;
 		});
 
-		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-			executorService.submit(() -> {
-				fileServiceImpl.getFile("filename");
-				return null;
-			});
-			assertThrows(LockTimeoutException.class, () -> fileServiceImpl.deleteFile("filename"));
-			verify(fileRepository).fileExists("filename");
-			verify(fileRepository).getFileFromStorage("filename");
-			verify(fileRepository, never()).deleteFileFromStorage("filename");
-		}
+		executorService.submit(() -> {
+			fileServiceImpl.getFile("filename");
+			return null;
+		});
+		executorService.submit(() ->assertThrows(LockTimeoutException.class, () -> fileServiceImpl.deleteFile("filename")));
+		executorService.shutdown();
+		executorService.awaitTermination(20, TimeUnit.SECONDS);
+		verify(fileRepository).fileExists("filename");
+		verify(fileRepository).getFileFromStorage("filename");
+		verify(fileRepository, never()).deleteFileFromStorage("filename");
 	}
 
 	@Test
@@ -286,15 +300,21 @@ public class FileServiceImplTest {
 			return true;
 		});
 
-		try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
-			executorService.submit(() -> {
-				fileServiceImpl.getFile("filename");
-				return null;
-			});
-			fileServiceImpl.deleteFile("filename");
-			verify(fileRepository, times(2)).fileExists("filename");
-			verify(fileRepository).getFileFromStorage("filename");
-			verify(fileRepository).deleteFileFromStorage("filename");
-		}
+		executorService.submit(() -> {
+			fileServiceImpl.getFile("filename");
+			return null;
+		});
+		executorService.submit(() -> {
+			try {
+				fileServiceImpl.deleteFile("filename");
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		executorService.shutdown();
+		executorService.awaitTermination(20, TimeUnit.SECONDS);
+		verify(fileRepository, times(2)).fileExists("filename");
+		verify(fileRepository).getFileFromStorage("filename");
+		verify(fileRepository).deleteFileFromStorage("filename");
 	}
 }

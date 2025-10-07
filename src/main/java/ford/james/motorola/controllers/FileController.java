@@ -37,7 +37,7 @@ public class FileController {
 	public ResponseEntity<Resource> getFile(@PathVariable String filename)
 			throws Exception {
 
-		LOGGER.debug("Downloading file [{}}]", filename);
+		LOGGER.info("Downloading file [{}}]", filename);
 
 		validateFilename(filename);
 
@@ -57,24 +57,24 @@ public class FileController {
 
 	@GetMapping("list")
 	public Set<String> listFiles() throws IOException {
-		LOGGER.debug("Listing available files");
+		LOGGER.info("Listing available files");
 		return fileService.listFilenames();
 	}
 
 	@PostMapping("upload")
 	public void uploadFile(MultipartFile file) throws Exception {
-		LOGGER.debug("Uploading file [{}}]", file.getOriginalFilename());
+		LOGGER.info("Uploading file [{}}]", file.getOriginalFilename());
 		validateFilename(file.getOriginalFilename());
 		fileService.saveFile(file);
-		LOGGER.debug("Successfully uploaded file [{}}]", file.getOriginalFilename());
+		LOGGER.info("Successfully uploaded file [{}}]", file.getOriginalFilename());
 	}
 
 	@DeleteMapping("delete/{filename}")
 	public void removeFile(@PathVariable String filename) throws Exception {
-		LOGGER.debug("Deleting file [{}}]", filename);
+		LOGGER.info("Deleting file [{}}]", filename);
 		validateFilename(filename);
 		fileService.deleteFile(filename);
-		LOGGER.debug("Successfully deleted file [{}}]", filename);
+		LOGGER.info("Successfully deleted file [{}}]", filename);
 	}
 
 	/**

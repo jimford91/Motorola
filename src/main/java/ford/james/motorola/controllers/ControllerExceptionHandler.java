@@ -1,6 +1,7 @@
 package ford.james.motorola.controllers;
 
 
+import java.io.FileNotFoundException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
 
@@ -28,8 +29,8 @@ public class ControllerExceptionHandler {
 		return generateResponseAndLog(HttpStatus.BAD_REQUEST, e, webRequest);
 	}
 
-	@ExceptionHandler(NoSuchFileException.class)
-	public ResponseEntity<String> handleNoSuchFileException(WebRequest webRequest, NoSuchFileException e) {
+	@ExceptionHandler(FileNotFoundException.class)
+	public ResponseEntity<String> handleFileNotFoundException(WebRequest webRequest, FileNotFoundException e) {
 		return generateResponseAndLog(HttpStatus.NOT_FOUND, e, webRequest);
 	}
 
