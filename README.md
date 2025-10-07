@@ -60,4 +60,6 @@ There is very limited Javadoccing. I was focused on getting the solution done bu
 inline where needed and javadoccing on methods.
 
 After doing some reading while trying to fix tests, I came upon the FileLock functionality within the NIO library within Java. 
-Locking at the file level with the access to the file would be better than locking within the java code instead how I implemented it.
+Locking at the file level with the access to the file would be better than locking within the java code instead how I implemented it .
+
+Also, having the OpenAI secret read in from an external key-store would be the way to do it, instead of pushing it. 

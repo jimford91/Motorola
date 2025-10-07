@@ -3,7 +3,7 @@ spring:
     name: "motorola"
   ai:
     openai:
-      api-key:
+      api-key: "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"
 
 
 management:
